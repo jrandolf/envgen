@@ -53,8 +53,19 @@ func GenerateGo(w io.Writer, schema *model.SchemaFile, pkg string) error {
 	}
 	fmt.Fprintf(w, "}\n\n")
 
-	// Load function.
+	// load function (unexported).
 	writeLoadFunc(w, schema)
+
+	// Package-level Cfg var + init.
+	fmt.Fprintf(w, "\n// Cfg is the validated configuration, initialized at package load time.\n")
+	fmt.Fprintf(w, "var Cfg *Config\n\n")
+	fmt.Fprintf(w, "func init() {\n")
+	fmt.Fprintf(w, "\tvar err error\n")
+	fmt.Fprintf(w, "\tCfg, err = load()\n")
+	fmt.Fprintf(w, "\tif err != nil {\n")
+	fmt.Fprintf(w, "\t\tpanic(err)\n")
+	fmt.Fprintf(w, "\t}\n")
+	fmt.Fprintf(w, "}\n")
 
 	return nil
 }
@@ -77,9 +88,7 @@ func writeSecretType(w io.Writer) {
 }
 
 func writeLoadFunc(w io.Writer, schema *model.SchemaFile) {
-	fmt.Fprintf(w, "// Load reads all configuration from environment variables.\n")
-	fmt.Fprintf(w, "// It collects all validation errors before returning.\n")
-	fmt.Fprintf(w, "func Load() (*Config, error) {\n")
+	fmt.Fprintf(w, "func load() (*Config, error) {\n")
 	fmt.Fprintf(w, "\tvar errs []string\n")
 	fmt.Fprintf(w, "\tcfg := &Config{}\n\n")
 
