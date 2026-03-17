@@ -73,7 +73,7 @@ func TestGeneratePythonBasic(t *testing.T) {
 	}
 
 	// Check int coercion.
-	if !strings.Contains(out, "port = int(port)") {
+	if !strings.Contains(out, "port_int = int(port)") {
 		t.Error("missing port int coercion")
 	}
 }
