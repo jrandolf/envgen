@@ -77,7 +77,7 @@ func TestGenerateTypeScriptBasic(t *testing.T) {
 	}
 
 	// Check default fallback.
-	if !strings.Contains(out, `|| "3000"`) {
+	if !strings.Contains(out, `?? "3000"`) {
 		t.Error("missing PORT default fallback")
 	}
 

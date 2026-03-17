@@ -155,16 +155,16 @@ func writeTSStringVar(w io.Writer, v model.VarDef, tsName string) {
 		fmt.Fprintf(w, "    errors.push(\"%s is required\");\n", v.Name)
 		fmt.Fprintf(w, "  }\n")
 	} else if v.HasDefault {
-		fmt.Fprintf(w, "  const %s = process.env.%s || %q;\n", tsName, v.Name, v.Default)
+		fmt.Fprintf(w, "  const %s = process.env.%s ?? %q;\n", tsName, v.Name, v.Default)
 	} else {
 		// Optional, no default.
-		fmt.Fprintf(w, "  const %s = process.env.%s || undefined;\n", tsName, v.Name)
+		fmt.Fprintf(w, "  const %s = process.env.%s ?? undefined;\n", tsName, v.Name)
 	}
 }
 
 func writeTSNumericVar(w io.Writer, v model.VarDef, tsName string) {
 	if v.HasDefault {
-		fmt.Fprintf(w, "  const %sRaw = process.env.%s || %q;\n", tsName, v.Name, v.Default)
+		fmt.Fprintf(w, "  const %sRaw = process.env.%s ?? %q;\n", tsName, v.Name, v.Default)
 	} else if v.Required {
 		fmt.Fprintf(w, "  const %sRaw = process.env.%s ?? \"\";\n", tsName, v.Name)
 		fmt.Fprintf(w, "  if (!%sRaw) {\n", tsName)
@@ -204,9 +204,9 @@ func writeTSEnumVar(w io.Writer, v model.VarDef, tsName string) {
 		fmt.Fprintf(w, "    errors.push(\"%s is required\");\n", v.Name)
 		fmt.Fprintf(w, "  }\n")
 	} else if v.HasDefault {
-		fmt.Fprintf(w, "  const %s = process.env.%s || %q;\n", tsName, v.Name, v.Default)
+		fmt.Fprintf(w, "  const %s = process.env.%s ?? %q;\n", tsName, v.Name, v.Default)
 	} else {
-		fmt.Fprintf(w, "  const %s = process.env.%s || undefined;\n", tsName, v.Name)
+		fmt.Fprintf(w, "  const %s = process.env.%s ?? undefined;\n", tsName, v.Name)
 	}
 
 	if len(v.EnumValues) > 0 {
