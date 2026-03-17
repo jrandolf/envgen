@@ -51,7 +51,34 @@ func GenerateTypeScript(w io.Writer, schema *model.SchemaFile) error {
 	// loadEnv function.
 	writeLoadEnvFunc(w, schema)
 
+	// Global ProcessEnv augmentation so process.env.* is typed everywhere.
+	writeTSProcessEnvAugmentation(w, schema)
+
 	return nil
+}
+
+func writeTSProcessEnvAugmentation(w io.Writer, schema *model.SchemaFile) {
+	fmt.Fprintf(w, "\ndeclare global {\n")
+	fmt.Fprintf(w, "  namespace NodeJS {\n")
+	fmt.Fprintf(w, "    interface ProcessEnv {\n")
+	for _, v := range schema.Vars {
+		tsType := "string"
+		if v.Type == model.TypeEnum && len(v.EnumValues) > 0 {
+			quoted := make([]string, len(v.EnumValues))
+			for i, val := range v.EnumValues {
+				quoted[i] = fmt.Sprintf("%q", val)
+			}
+			tsType = strings.Join(quoted, " | ")
+		}
+		if !v.Required {
+			fmt.Fprintf(w, "      %s?: %s;\n", v.Name, tsType)
+		} else {
+			fmt.Fprintf(w, "      %s: %s;\n", v.Name, tsType)
+		}
+	}
+	fmt.Fprintf(w, "    }\n")
+	fmt.Fprintf(w, "  }\n")
+	fmt.Fprintf(w, "}\n")
 }
 
 func writeTSSecretClass(w io.Writer) {
