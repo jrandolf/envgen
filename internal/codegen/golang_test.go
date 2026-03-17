@@ -51,9 +51,15 @@ func TestGenerateGoBasic(t *testing.T) {
 		t.Errorf("missing NATSReplicas int field")
 	}
 
-	// Check Load function.
-	if !strings.Contains(out, "func Load() (*Config, error)") {
-		t.Error("missing Load function")
+	// Check load function and Cfg var.
+	if !strings.Contains(out, "func load() (*Config, error)") {
+		t.Error("missing load function")
+	}
+	if !strings.Contains(out, "var Cfg *Config") {
+		t.Error("missing Cfg var")
+	}
+	if !strings.Contains(out, "func init()") {
+		t.Error("missing init function")
 	}
 
 	// Check default fallback.
