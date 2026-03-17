@@ -4,6 +4,7 @@
 //
 //	envgen -lang=go  -schema=path/to/.env.schema -out=config.go -package=config
 //	envgen -lang=py  -schema=path/to/.env.schema -out=config.py
+//	envgen -lang=ts  -schema=path/to/.env.schema -out=lib/env.ts
 package main
 
 import (
@@ -17,14 +18,14 @@ import (
 )
 
 func main() {
-	lang := flag.String("lang", "", "output language: go or py")
+	lang := flag.String("lang", "", "output language: go, py, or ts")
 	schema := flag.String("schema", "", "path to .env.schema file")
 	out := flag.String("out", "", "output file path")
 	pkg := flag.String("package", "config", "Go package name (only for -lang=go)")
 	flag.Parse()
 
 	if *lang == "" || *schema == "" || *out == "" {
-		fmt.Fprintf(os.Stderr, "usage: envgen -lang=<go|py> -schema=<path> -out=<path> [-package=<name>]\n")
+		fmt.Fprintf(os.Stderr, "usage: envgen -lang=<go|py|ts> -schema=<path> -out=<path> [-package=<name>]\n")
 		os.Exit(1)
 	}
 
@@ -54,6 +55,8 @@ func main() {
 		err = codegen.GenerateGo(f, s, *pkg)
 	case "py":
 		err = codegen.GeneratePython(f, s)
+	case "ts":
+		err = codegen.GenerateTypeScript(f, s)
 	default:
 		fmt.Fprintf(os.Stderr, "unsupported language: %s\n", *lang)
 		os.Exit(1)
