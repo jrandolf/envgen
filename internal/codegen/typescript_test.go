@@ -67,7 +67,7 @@ func TestGenerateTypeScriptBasic(t *testing.T) {
 	}
 
 	// Check loadEnv function.
-	if !strings.Contains(out, "export const loadEnv = (): Env =>") {
+	if !strings.Contains(out, "export const env: Env =") {
 		t.Error("missing loadEnv function")
 	}
 

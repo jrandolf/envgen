@@ -106,7 +106,7 @@ func writeTSSecretClass(w io.Writer) {
 }
 
 func writeLoadEnvFunc(w io.Writer, schema *model.SchemaFile) {
-	fmt.Fprintf(w, "export const loadEnv = (): Env => {\n")
+	fmt.Fprintf(w, "export const env: Env = /* @__PURE__ */ (() => {\n")
 	fmt.Fprintf(w, "  const errors: string[] = [];\n\n")
 
 	for _, v := range schema.Vars {
@@ -145,7 +145,7 @@ func writeLoadEnvFunc(w io.Writer, schema *model.SchemaFile) {
 		}
 	}
 	fmt.Fprintf(w, "  };\n")
-	fmt.Fprintf(w, "};\n")
+	fmt.Fprintf(w, "})();\n")
 }
 
 func writeTSStringVar(w io.Writer, v model.VarDef, tsName string) {
