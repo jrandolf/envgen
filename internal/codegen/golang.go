@@ -159,7 +159,8 @@ func writeLoadFunc(w io.Writer, schema *model.SchemaFile) {
 		fmt.Fprintf(w, "\n")
 	}
 
-	fmt.Fprintf(w, "\tif len(errs) > 0 {\n")
+	fmt.Fprintf(w, "\t// Set SKIP_ENV_VALIDATION=1 to suppress validation errors (e.g. in tests).\n")
+	fmt.Fprintf(w, "\tif len(errs) > 0 && os.Getenv(\"SKIP_ENV_VALIDATION\") == \"\" {\n")
 	fmt.Fprintf(w, "\t\treturn nil, fmt.Errorf(\"config errors:\\n  %%s\", strings.Join(errs, \"\\n  \"))\n")
 	fmt.Fprintf(w, "\t}\n")
 	fmt.Fprintf(w, "\treturn cfg, nil\n")
