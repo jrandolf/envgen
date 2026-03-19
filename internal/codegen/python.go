@@ -106,7 +106,8 @@ func GeneratePython(w io.Writer, schema *model.SchemaFile) error {
 		fmt.Fprintf(w, "\n")
 	}
 
-	fmt.Fprintf(w, "        if errors:\n")
+	fmt.Fprintf(w, "        # Set SKIP_ENV_VALIDATION=1 to suppress validation errors (e.g. in tests).\n")
+	fmt.Fprintf(w, "        if errors and not os.environ.get(\"SKIP_ENV_VALIDATION\"):\n")
 	fmt.Fprintf(w, "            raise ValueError(\"config errors:\\n  \" + \"\\n  \".join(errors))\n\n")
 
 	// Return constructor — wrap sensitive strings in SecretStr, use _int for numerics.
