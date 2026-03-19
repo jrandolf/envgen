@@ -161,3 +161,21 @@ func TestGenerateGoEnum(t *testing.T) {
 		t.Errorf("missing enum validation:\n%s", out)
 	}
 }
+
+func TestGenerateGoSkipValidation(t *testing.T) {
+	schema := &model.SchemaFile{
+		Vars: []model.VarDef{
+			{Name: "REQUIRED_VAR", Type: model.TypeString, Required: true, Docs: "Required test variable"},
+		},
+	}
+
+	var buf bytes.Buffer
+	if err := GenerateGo(&buf, schema, "config"); err != nil {
+		t.Fatal(err)
+	}
+
+	out := buf.String()
+	if !strings.Contains(out, `os.Getenv("SKIP_ENV_VALIDATION") == ""`) {
+		t.Errorf("expected SKIP_ENV_VALIDATION check in error gate:\n%s", out)
+	}
+}
