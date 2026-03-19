@@ -18,6 +18,16 @@ envgen -lang=py  -schema=.env.schema -out=src/config.py
 envgen -lang=ts  -schema=.env.schema -out=lib/env.ts
 ```
 
+## Skipping validation
+
+Set `SKIP_ENV_VALIDATION` to any non-empty value to suppress validation errors at startup.
+This is useful in test environments where not all variables are populated:
+
+    SKIP_ENV_VALIDATION=true node my-app.js
+
+When set, missing required variables receive empty string / zero values and the process
+continues. Type and enum checks are still collected but not raised.
+
 ## Schema format
 
 ```bash
