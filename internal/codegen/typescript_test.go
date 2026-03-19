@@ -179,6 +179,24 @@ func TestGenerateTypeScriptOptionalNumeric(t *testing.T) {
 	}
 }
 
+func TestGenerateTypeScriptSkipValidation(t *testing.T) {
+	schema := &model.SchemaFile{
+		Vars: []model.VarDef{
+			{Name: "REQUIRED_VAR", Type: model.TypeString, Required: true, Docs: "Required test variable"},
+		},
+	}
+
+	var buf bytes.Buffer
+	if err := GenerateTypeScript(&buf, schema); err != nil {
+		t.Fatal(err)
+	}
+
+	out := buf.String()
+	if !strings.Contains(out, `!process.env["SKIP_ENV_VALIDATION"]`) {
+		t.Errorf("expected SKIP_ENV_VALIDATION check in error gate:\n%s", out)
+	}
+}
+
 func TestGenerateTypeScriptJSDoc(t *testing.T) {
 	schema := &model.SchemaFile{
 		Vars: []model.VarDef{

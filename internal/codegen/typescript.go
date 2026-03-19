@@ -124,7 +124,8 @@ func writeLoadEnvFunc(w io.Writer, schema *model.SchemaFile) {
 		fmt.Fprintf(w, "\n")
 	}
 
-	fmt.Fprintf(w, "  if (errors.length > 0) {\n")
+	fmt.Fprintf(w, "  // Set SKIP_ENV_VALIDATION=1 to suppress validation errors (e.g. in tests).\n")
+	fmt.Fprintf(w, "  if (errors.length > 0 && !process.env[\"SKIP_ENV_VALIDATION\"]) {\n")
 	fmt.Fprintf(w, "    throw new Error(`config errors:\\n  ${errors.join(\"\\n  \")}`);\n")
 	fmt.Fprintf(w, "  }\n\n")
 
