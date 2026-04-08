@@ -18,14 +18,14 @@ import (
 )
 
 func main() {
-	lang := flag.String("lang", "", "output language: go, py, or ts")
+	lang := flag.String("lang", "", "output language: go, py, rs, or ts")
 	schema := flag.String("schema", "", "path to .env.schema file")
 	out := flag.String("out", "", "output file path")
 	pkg := flag.String("package", "config", "Go package name (only for -lang=go)")
 	flag.Parse()
 
 	if *lang == "" || *schema == "" || *out == "" {
-		fmt.Fprintf(os.Stderr, "usage: envgen -lang=<go|py|ts> -schema=<path> -out=<path> [-package=<name>]\n")
+		fmt.Fprintf(os.Stderr, "usage: envgen -lang=<go|py|rs|ts> -schema=<path> -out=<path> [-package=<name>]\n")
 		os.Exit(1)
 	}
 
@@ -55,6 +55,8 @@ func main() {
 		err = codegen.GenerateGo(f, s, *pkg)
 	case "py":
 		err = codegen.GeneratePython(f, s)
+	case "rs":
+		err = codegen.GenerateRust(f, s)
 	case "ts":
 		err = codegen.GenerateTypeScript(f, s)
 	default:
