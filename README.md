@@ -2,7 +2,7 @@
 
 Generate typed, validated config code from `.env.schema` files.
 
-Reads a `.env.schema` file and emits a typed config module for Go, Python, or TypeScript. The generated code validates all environment variables at startup, applies schema defaults, and wraps sensitive values in redaction-safe types.
+Reads a `.env.schema` file and emits a typed config module for Go, Python, Rust, or TypeScript. The generated code validates all environment variables at startup, applies schema defaults, and wraps sensitive values in redaction-safe types.
 
 ## Install
 
@@ -15,6 +15,7 @@ go install github.com/jrandolf/envgen@latest
 ```bash
 envgen -lang=go  -schema=.env.schema -out=config/config.go -package=config
 envgen -lang=py  -schema=.env.schema -out=src/config.py
+envgen -lang=rs  -schema=.env.schema -out=src/config.rs
 envgen -lang=ts  -schema=.env.schema -out=lib/env.ts
 ```
 
@@ -97,6 +98,16 @@ cfg = Config.from_env()
 engine = create_engine(cfg.database_url.get_secret_value())
 ```
 
+### Rust (`-lang=rs`)
+
+Generates a `Config` struct with a `Config::load() -> Result<Config, String>` function and a `CONFIG` static via `LazyLock`. Zero dependencies. Sensitive values are wrapped in a `Secret` struct that returns `[REDACTED]` from `Display` and `Debug`. Use `secret.expose()` to access the underlying value.
+
+```rust
+use config::CONFIG;
+
+let pool = PgPool::connect(CONFIG.database_url.expose()).await?;
+```
+
 ### TypeScript (`-lang=ts`)
 
 Generates an `Env` interface and `loadEnv()` function with zero dependencies. Sensitive values are wrapped in a `Secret` class that returns `[REDACTED]` from `toString()`, `toJSON()`, and Node.js `inspect()`. Use `secret.expose()` to access the underlying value.
@@ -108,22 +119,22 @@ const pool = createPool(env.databaseUrl.expose());
 
 ## Naming conventions
 
-| Schema | Go | Python | TypeScript |
-|---|---|---|---|
-| `DATABASE_URL` | `DatabaseURL` | `database_url` | `databaseUrl` |
-| `PORT` | `Port` | `port` | `port` |
-| `API_KEY` | `APIKey` | `api_key` | `apiKey` |
+| Schema | Go | Python | Rust | TypeScript |
+|---|---|---|---|---|
+| `DATABASE_URL` | `DatabaseURL` | `database_url` | `database_url` | `databaseUrl` |
+| `PORT` | `Port` | `port` | `port` | `port` |
+| `API_KEY` | `APIKey` | `api_key` | `api_key` | `apiKey` |
 
 ## Type mapping
 
-| Schema | Go | Go (sensitive) | Python | Python (sensitive) | TypeScript | TypeScript (sensitive) |
-|---|---|---|---|---|---|---|
-| string | `string` | `Secret` | `str` | `SecretStr` | `string` | `Secret` |
-| port | `int` | — | `int` | — | `number` | — |
-| number | `int` | — | `int` | — | `number` | — |
-| url | `string` | `Secret` | `str` | `SecretStr` | `string` | `Secret` |
-| email | `string` | — | `str` | — | `string` | — |
-| enum | `string` | — | `str` | — | union literal | — |
+| Schema | Go | Go (sensitive) | Python | Python (sensitive) | Rust | Rust (sensitive) | TypeScript | TypeScript (sensitive) |
+|---|---|---|---|---|---|---|---|---|
+| string | `string` | `Secret` | `str` | `SecretStr` | `String` | `Secret` | `string` | `Secret` |
+| port | `int` | — | `int` | — | `i64` | — | `number` | — |
+| number | `int` | — | `int` | — | `i64` | — | `number` | — |
+| url | `string` | `Secret` | `str` | `SecretStr` | `String` | `Secret` | `string` | `Secret` |
+| email | `string` | — | `str` | — | `String` | — | `string` | — |
+| enum | `string` | — | `str` | — | `String` | — | union literal | — |
 
 ## License
 
