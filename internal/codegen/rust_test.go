@@ -27,32 +27,20 @@ func TestGenerateRustBasic(t *testing.T) {
 
 	out := buf.String()
 
-	// Check Secret type is generated.
-	if !strings.Contains(out, "pub struct Secret") {
-		t.Error("missing Secret type")
-	}
-	if !strings.Contains(out, "fn expose(&self) -> &str") {
-		t.Error("missing expose method")
-	}
-	if !strings.Contains(out, "[REDACTED]") {
-		t.Error("missing REDACTED in Secret")
-	}
-	if !strings.Contains(out, "impl fmt::Display for Secret") {
-		t.Error("missing Display impl for Secret")
-	}
-	if !strings.Contains(out, "impl fmt::Debug for Secret") {
-		t.Error("missing Debug impl for Secret")
+	// Check secrecy crate is imported.
+	if !strings.Contains(out, "use secrecy::SecretString;") {
+		t.Error("missing secrecy::SecretString import")
 	}
 
 	// Check struct fields.
-	if !strings.Contains(out, "pub database_url: Secret") {
-		t.Errorf("missing database_url Secret field")
+	if !strings.Contains(out, "pub database_url: SecretString") {
+		t.Errorf("missing database_url SecretString field")
 	}
 	if !strings.Contains(out, "pub port: i64") {
 		t.Errorf("missing port i64 field")
 	}
-	if !strings.Contains(out, "pub anthropic_api_key: Option<Secret>") {
-		t.Errorf("missing anthropic_api_key Option<Secret> field")
+	if !strings.Contains(out, "pub anthropic_api_key: Option<SecretString>") {
+		t.Errorf("missing anthropic_api_key Option<SecretString> field")
 	}
 	if !strings.Contains(out, "pub nats_replicas: i64") {
 		t.Errorf("missing nats_replicas i64 field")
@@ -76,9 +64,9 @@ func TestGenerateRustBasic(t *testing.T) {
 		t.Error("missing DATABASE_URL required check")
 	}
 
-	// Check Secret wrapping in constructor.
-	if !strings.Contains(out, "Secret::new(database_url)") {
-		t.Error("missing Secret wrapping for database_url")
+	// Check SecretString wrapping in constructor.
+	if !strings.Contains(out, "SecretString::from(database_url)") {
+		t.Error("missing SecretString wrapping for database_url")
 	}
 }
 
@@ -95,11 +83,11 @@ func TestGenerateRustNoSensitive(t *testing.T) {
 	}
 
 	out := buf.String()
-	if strings.Contains(out, "pub struct Secret") {
-		t.Error("should not emit Secret type when no sensitive vars")
+	if strings.Contains(out, "use secrecy::") {
+		t.Error("should not import secrecy when no sensitive vars")
 	}
-	if strings.Contains(out, "use std::fmt") {
-		t.Error("should not import fmt when no sensitive vars")
+	if strings.Contains(out, "SecretString") {
+		t.Error("should not reference SecretString when no sensitive vars")
 	}
 }
 
