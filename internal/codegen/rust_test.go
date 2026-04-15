@@ -27,6 +27,10 @@ func TestGenerateRustBasic(t *testing.T) {
 
 	out := buf.String()
 
+	if !strings.Contains(out, `#![allow(dead_code, unused_mut, reason = "generated config may include fields or mutable validation state unused by some schemas")]`) {
+		t.Error("missing generated allow for dead_code and unused_mut")
+	}
+
 	// Check secrecy crate is imported.
 	if !strings.Contains(out, "use secrecy::SecretString;") {
 		t.Error("missing secrecy::SecretString import")
