@@ -100,13 +100,14 @@ engine = create_engine(cfg.database_url.get_secret_value())
 
 ### Rust (`-lang=rs`)
 
-Generates a `Config` struct with a `Config::load() -> Result<Config, String>` function and a `CONFIG` static via `LazyLock`. Sensitive values use [`secrecy::SecretString`](https://docs.rs/secrecy), which redacts on `Debug` and requires the `ExposeSecret` trait to read the value. Add `secrecy = "0.10"` to your `Cargo.toml` when the schema contains sensitive vars.
+Generates an `Env` struct with an `Env::from_env() -> Result<Env, String>` function. Sensitive values use [`secrecy::SecretString`](https://docs.rs/secrecy), which redacts on `Debug` and requires the `ExposeSecret` trait to read the value. Add `secrecy = "0.10"` to your `Cargo.toml` when the schema contains sensitive vars.
 
 ```rust
-use config::CONFIG;
+use config::Env;
 use secrecy::ExposeSecret;
 
-let pool = PgPool::connect(CONFIG.database_url.expose_secret()).await?;
+let env = Env::from_env()?;
+let pool = PgPool::connect(env.database_url.expose_secret()).await?;
 ```
 
 ### TypeScript (`-lang=ts`)
