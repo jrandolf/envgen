@@ -50,12 +50,15 @@ func TestGenerateRustBasic(t *testing.T) {
 		t.Errorf("missing nats_replicas i64 field")
 	}
 
-	// Check load function and CONFIG static.
-	if !strings.Contains(out, "pub fn load() -> Result<Config, String>") {
-		t.Error("missing load function")
+	// Check Env type and explicit load function.
+	if !strings.Contains(out, "pub struct Env") {
+		t.Error("missing Env struct")
 	}
-	if !strings.Contains(out, "pub static CONFIG: LazyLock<Config>") {
-		t.Error("missing CONFIG static")
+	if !strings.Contains(out, "pub fn from_env() -> Result<Env, String>") {
+		t.Error("missing from_env function")
+	}
+	if strings.Contains(out, "pub static") || strings.Contains(out, "LazyLock") || strings.Contains(out, "CONFIG") {
+		t.Error("should not generate a global static config")
 	}
 
 	// Check default fallback.

@@ -24,7 +24,6 @@ func GenerateRust(w io.Writer, schema *model.SchemaFile) error {
 	fmt.Fprintf(w, "#![allow(dead_code, unused_mut, reason = \"generated config may include fields or mutable validation state unused by some schemas\")]\n\n")
 
 	fmt.Fprintf(w, "use std::env;\n")
-	fmt.Fprintf(w, "use std::sync::LazyLock;\n")
 	if hasSensitive {
 		fmt.Fprintf(w, "use secrecy::SecretString;\n")
 	}
@@ -33,18 +32,13 @@ func GenerateRust(w io.Writer, schema *model.SchemaFile) error {
 	writeRustConfigStruct(w, schema)
 	writeRustLoadImpl(w, schema)
 
-	fmt.Fprintf(w, "/// Validated configuration, initialized on first access.\n")
-	fmt.Fprintf(w, "pub static CONFIG: LazyLock<Config> = LazyLock::new(|| {\n")
-	fmt.Fprintf(w, "    Config::load().unwrap_or_else(|e| panic!(\"{}\", e))\n")
-	fmt.Fprintf(w, "});\n")
-
 	return nil
 }
 
 func writeRustConfigStruct(w io.Writer, schema *model.SchemaFile) {
 	fmt.Fprintf(w, "/// Holds all environment configuration for this service.\n")
 	fmt.Fprintf(w, "#[derive(Debug)]\n")
-	fmt.Fprintf(w, "pub struct Config {\n")
+	fmt.Fprintf(w, "pub struct Env {\n")
 	for _, v := range schema.Vars {
 		rustName := envToRustName(v.Name)
 		rustType := rustFieldType(v)
@@ -57,8 +51,8 @@ func writeRustConfigStruct(w io.Writer, schema *model.SchemaFile) {
 }
 
 func writeRustLoadImpl(w io.Writer, schema *model.SchemaFile) {
-	fmt.Fprintf(w, "impl Config {\n")
-	fmt.Fprintf(w, "    pub fn load() -> Result<Config, String> {\n")
+	fmt.Fprintf(w, "impl Env {\n")
+	fmt.Fprintf(w, "    pub fn from_env() -> Result<Env, String> {\n")
 	fmt.Fprintf(w, "        let mut errors: Vec<String> = Vec::new();\n\n")
 
 	for _, v := range schema.Vars {
@@ -81,7 +75,7 @@ func writeRustLoadImpl(w io.Writer, schema *model.SchemaFile) {
 	fmt.Fprintf(w, "            return Err(format!(\"config errors:\\n  {}\", errors.join(\"\\n  \")));\n")
 	fmt.Fprintf(w, "        }\n\n")
 
-	fmt.Fprintf(w, "        Ok(Config {\n")
+	fmt.Fprintf(w, "        Ok(Env {\n")
 	for _, v := range schema.Vars {
 		rustName := envToRustName(v.Name)
 		writeRustConstructorField(w, v, rustName)
