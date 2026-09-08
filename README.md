@@ -6,8 +6,63 @@ Reads a `.env.schema` file and emits a typed config module for Go, Python, Rust,
 
 ## Install
 
+Install a prebuilt binary with [mise](https://mise.jdx.dev/):
+
+```bash
+mise use github:jrandolf/envgen@0.1.0
+envgen --version
+```
+
+Or declare the tool in `mise.toml`:
+
+```toml
+[tools]
+envgen = "0.1.0"
+
+[tool_alias]
+envgen = "github:jrandolf/envgen"
+```
+
+[GitHub releases](https://github.com/jrandolf/envgen/releases) provide archives for
+macOS, Linux, and Windows on amd64 (Intel/AMD) and arm64. Linux binaries are static
+and work with both glibc and musl, including Alpine. No Go toolchain is required.
+For manual installation, extract the archive for your platform and put `envgen`
+(`envgen.exe` on Windows) on your `PATH`. Each release includes SHA-256 checksums
+in `checksums.txt` and GitHub build provenance attestations.
+
+To compile from source instead:
+
 ```bash
 go install github.com/jrandolf/envgen@latest
+```
+
+## Releasing
+
+Push a semantic version tag from `main` to publish a release:
+
+```bash
+git switch main
+git pull --ff-only
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+The release workflow runs the Go tests and vet checks, builds all six archives
+with GoReleaser, verifies their checksums, and runs each binary on its native
+platform. Both Linux architectures also run on Alpine. Only after every check
+passes does the workflow attest and publish those same archives, then verify
+installation through mise on all six platforms. Tags with a prerelease suffix
+(for example, `v0.2.0-rc.1`) publish GitHub prereleases.
+
+Pull requests and pushes to `main` run the same build and archive checks using
+snapshot versions. To check the release build locally with Go and GoReleaser
+2.18.1 installed:
+
+```bash
+go test ./...
+go vet ./...
+goreleaser check
+goreleaser release --snapshot --clean
 ```
 
 ## Usage
