@@ -17,12 +17,20 @@ import (
 	"github.com/jrandolf/envgen/internal/parser"
 )
 
+var version = "dev"
+
 func main() {
+	showVersion := flag.Bool("version", false, "print version and exit")
 	lang := flag.String("lang", "", "output language: go, py, rs, or ts")
 	schema := flag.String("schema", "", "path to .env.schema file")
 	out := flag.String("out", "", "output file path")
 	pkg := flag.String("package", "config", "Go package name (only for -lang=go)")
 	flag.Parse()
+
+	if *showVersion {
+		fmt.Printf("envgen %s\n", version)
+		return
+	}
 
 	if *lang == "" || *schema == "" || *out == "" {
 		fmt.Fprintf(os.Stderr, "usage: envgen -lang=<go|py|rs|ts> -schema=<path> -out=<path> [-package=<name>]\n")
